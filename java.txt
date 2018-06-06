@@ -64,4 +64,37 @@ C:\Users\Ronei\eclipse\java-oxygen\eclipse
 
 copiar conteudo pasta eclipse
 
+..........................................................................
+
+C:\Program Files\IBM
+
+pasta MQ Explorer
+
+
+
+C:\Users\Ronei
+
+
+pasta .eclipse
+
+pasta .cicsexplorer
+
+
+...............................................
+
+desktop
+
+ pasta CICS_Explorer (7z)
+
+...............................................
+
+C:\Users\Ronei\eclipse\java-oxygen\eclipse\eclipse.exe
+
+
+pasta eclipse
+
+pasta eclipse-workspace
+
+
+https://www.ibm.com/developerworks/data/library/techarticle/dm-0506chong/index.html
 
