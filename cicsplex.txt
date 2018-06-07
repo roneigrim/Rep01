@@ -1,8 +1,0 @@
-https://www.ibm.com/developerworks/community/blogs/ChrisHodgins/entry/cicsplexed_and_confused_part_1_understanding_your_cicsplex1?lang=en
-
-https://www.ibm.com/developerworks/community/blogs/ChrisHodgins/entry/10_quick_steps_to_getting_started_with_fully_functional_bas_in_cicsplex_sm35?lang=en
-
-https://developer.ibm.com/cics/2016/04/13/using-cpsm-rta-to-monitor-critical-tasks-in-cics/
-
-https://developer.ibm.com/answers/questions/265532/how-can-i-get-all-the-current-resource-definitions/
-
