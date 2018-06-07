@@ -1,0 +1,65 @@
+Using AT-TLS to encrypt data flowing over IBM MQ channels
+Application Transparent Transport Layer Security (AT-TLS) is based on z/OS System SSL, and
+transparently implements the TLS protocol (defined in RFC 2246) in the TCP layer of the stack.
+When running channels between queue managers hosted on z/OS, AT-TLS can be used to encrypt
+messages transported over MQ channels rather than relying on IBM MQ channels performing the
+encryption function. The use of AT-TLS can result in reduced costs within MQ.
+Who pays for AT-TLS
+MQ channels with SSLCIPH configured will see the encryption/decryption cost associated with the
+channel initiator address space.
+When transporting messages using channels encrypted using AT-TLS, the cost of encryption is
+charged to the callers unit of work (i.e. the channel initiator) and decryption is incurred by the
+TCPIP address space as the decryption is performed by an SRB running in the TCPIP address
+space.
+Limitations
+IBM MQ allows the user to specify different SSL cipher specifications for each channel.
+To run with different cipher specifications using AT-TLS can involve defining additional rules plus
+either specifying the LOCLADDR attribute on the channel to restrict the port being used or by
+running with multiple listeners defined on the channel initiator.
+IBM MQ allows the secret key negotiation to be performed when the number of bytes sent and
+received within an SSL conversation exceeds the SSLRKEYC value, whereas AT-TLS allows the
+renegotiation to take place after a period of time has been exceeded.
+When the AT-TLS encryption is performed, the TCP socket is blocked – this can have a noticeable
+effect on throughput rate with large messages unless dynamic right sizing is enabled on the TCPIP
+stack.
+Channels protected with CHLAUTH rules may not be allowed to start if the rule contains a value
+for SSLPEER.
+Performance comparison
+The following measurements were run using a 10Gb network between 2 z/OS v1r13 LPARs each
+with 5 dedicated processors on a 2817-779.
+A request/reply workload between 2 queue managers was run over a pair of sender-receiver channels
+using non-persistent messages.
+In the measurements using channels with SSLCIPH cipher specifications, the SSL key negotiation
+has been disabled (by setting to ’0’) in order to provide a direct comparison. Similarly the AT-TLS
+negotiation period has been disabled.
+The costs shown in the following charts are for the queue manager, channel initiator and TCPIP
+address spaces only and are based on the cost observed in both LPARs.
+
+Notes on preceding chart: 2k
+• The queue manager cost is not affected by the level of encryption nor by who performs the
+encryption.
+• The total cost of transporting the message is 15% less when using AT-TLS
+• The channel initiator costs are 24% lower when using AT-TLS
+• TCPIP costs double when using AT-TLS.
+
+Notes on preceding chart: 16k
+• The total cost of transporting the message is 30% less when using AT-TLS
+• The channel initiator costs are 45% lower when using AT-TLS
+• TCPIP costs are double using NULL_SHA and approximately 2.5 times using
+TLS_RSA_WITH_AES_256_CBC_SHA.
+
+Notes on preceding chart: 64k
+• The total cost of transporting the message is 24% less when using AT-TLS
+• The channel initiator costs are 45% lower when using AT-TLS
+• TCPIP costs are double using NULL_SHA and approximately 2.5 times using
+TLS_RSA_WITH_AES_256_CBC_SHA.
+
+NNotes on preceding chart: 1m
+• The total cost of transporting the message is 24% less when using AT-TLS
+• The channel initiator costs are 50% lower when using AT-TLS
+• TCPIP costs are double using NULL_SHA and approximately 2.5 times using
+TLS_RSA_WITH_AES_256_CBC_SHA.
+
+
+
+
