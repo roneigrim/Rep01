@@ -1,0 +1,287 @@
+﻿################################################################################################################################################################
+# 23/05/2018: V0.3
+################################################################################################################################################################
+
+https://ibm-messaging.github.io/mqperf/
+
+Configurações necessárias a nível de canais SND/RCV e SRVCONN no MQ para evitar que pessoas não autorizadas tenham acesso:
+
+Definir o certificado para o usuário do MQ:
+  https://www.ibm.com/support/knowledgecenter/en/SSFKSJ_8.0.0/com.ibm.mq.sec.doc/q012080_.htm
+  https://www.ibm.com/support/knowledgecenter/SSFKSJ_9.0.0/com.ibm.mq.sec.doc/q013120_.html
+  https://www.ibm.com/support/knowledgecenter/SSFKSJ_9.0.0/com.ibm.mq.sec.doc/q013040_.html
+
+1. Para uso do MQ Explorer: definir canal SRVCONN de nome SYSTEM.BKR.CONFIG e reservar uma porta para essa comunicação.
+
+  1.1. Parâmetros do canal:
+    MCA USER ID : DUMMY
+    SSL CIPHER SPECIFICATION : TLS_RSA_WITH_AES_256_CBC_SHA256
+    SSL CERTIFICATE REQUIRED : Y
+  
+  1.2 Configurações a nível de MQ:
+    Definir o parâmetro CHCKCLNT(OPTIONAL)[2] e ADOPTCTX(YES)[1] na AUTHINFO e definir essa AUTHINFO para a CONNAUTH [3]:
+      ALTER QMGR CONNAUTH('SYSTEM.DEFAULT.AUTHINFO.IDPWOS')
+      ALTER AUTHINFO('SYSTEM.DEFAULT.AUTHINFO.IDPWOS') AUTHTYPE(IDPWOS) ADOPTCTX(YES) CHCKCLNT(OPTIONAL) 
+      REFRESH SECURITY TYPE(CONNAUTH)
+    Definir que o canal utiliza CHLAUTH e requere a senha para validação (CHCKCLNT(REQUIRED)):
+      ALTER QMGR CHLAUTH(ENABLED)
+      SET CHLAUTH(SYSTEM.BKR.CONFIG) TYPE(ADDRESSMAP) ADDRESS('*') USERSRC(CHANNEL) CHCKCLNT(REQUIRED)
+      
+2. Caso seja utilizada comunicação via AT-TLS:
+
+  2.1 Configuração do AT-TLS [4] para validar o certificado apresentado em cada porta:
+    2.1.1. TTLSEnvironmentAdvancedParms: ClientAuthType : SAFCheck
+    2.1.2. Adicionar o certificado ao truststore no keyring dos usuários de serviço.
+  
+  2.2 Canal RCV:
+    Alocar uma porta específica para todos os canais RCV. Um canal para cada MQ de origem.
+    - PUTAUT : D
+    - MCA USER ID: DUMMY
+    *Usuario utilizado para put nas filas será o da task do channel initiator: SMQXXXXC
+    SET CHLAUTH(YYYY.TO.XXXX) TYPE(SSLPEERMAP) SSLPEER('CN=YYYY.TO.XXXX, O=Caixa Economica Federal, C=BR') USERSRC(MAP) MCAUSER(SMQXXXXC)  (Não sei se irá funcionar com o AT-TLS e sem o SSL CIPHER)
+
+  2.3 Canal SRVCONN:
+    Porta específica para cada canal, e um canal para cada sistema.
+    - PUTAUT = ONLYMCA
+    - MCA USER ID = DUMMY
+    SET CHLAUTH(SIXXX.SRVCONN) TYPE(SSLPEERMAP) SSLPEER('CN=SXXXMCAP.CAIXA, O=Caixa Economica Federal, C=BR') MCAUSER(SXXXMCAP) (Não sei se irá funcionar com o AT-TLS e sem o SSL CIPHER)
+  
+3. Caso não seja utilizada comunicação via AT-TLS:
+
+  3.1 Canal RCV:
+    Alocar uma porta específica para todos os canais RCV. Um canal para cada MQ de origem.
+    - PUTAUT : D
+    - SSL CIPHER SPECIFICATION : TLS_RSA_WITH_AES_256_CBC_SHA256
+    - SSL PEER NAME : CN=SMQYYYYC.CAIXA, O=Caixa Economica Federal, C=BR
+    - MCA USER ID: '' (em branco, sim)
+    *Usuario utilizado para put nas filas será o da task do channel initiator: SMQXXXXC
+    
+  3.2 Canal SND:
+    - SSL CIPHER SPECIFICATION : TLS_RSA_WITH_AES_256_CBC_SHA256
+    - SSL PEER NAME : CN=SMQXXXXC.CAIXA, O=Caixa Economica Federal, C=BR
+  
+  3.3 Canal SRVCONN:
+    Porta específica para cada canal, e um canal para cada sistema.
+    - PUTAUT : ONLYMCA
+    - SSL CIPHER SPECIFICATION : TLS_RSA_WITH_AES_256_CBC_SHA256
+    - SSL PEER NAME : CN=SXXXMCAP.CAIXA, O=Caixa Economica Federal, C=BR
+    - SSL CERTIFICATE REQUIRED : Y
+    - MCA USER ID : SXXXMCAP
+      
+4. Para todos os outros canais SYSTEM.DEF*:
+  4.1 Definir o MCAUSERID: DUMMYs
+  
+5. Qualquer canal novo criado deverá ter criptografia e deve ser autenticado o usuário utilizado na conexão para definir o MCAUSERID.
+
+Com essa configuração, confia-se nos outros MQS conectados, ou seja, o usuário utilizado no canal(usuário do CHIN) deve ter acesso de escrita nas filas de sistemas.
+Confia-se que quem tem o certificado de um sistema estará autorizado para acessar o canal daquele sistema.
+Os acessos via MQ Explorer validarão no RACF o usuário e senha, e o usuário pessoal será o utilizado para o canal SYSTEM.BRK.CONFIG.
+
+################################################################################################################################################################
+Testes necessários:
+  1. Configuração CONNAUTH e acesso via MQExplorer com usuário e senha. Validar se usuário de serviço que não tem senha não conecta realmente. Validar se o MCAUSERID é alterado para o usuário autenticado.
+  2. Habilitar CHLAUTH(ENABLED) e validar funcionamento.
+  3. SP - Configuração de SRVCONN com certificado e conexão via websphere com autenticação mútua.
+  4. Configuração de SND/RCV com autenticação mútua. (com e sem AT-TLS)
+  5. Validação do AT-TLS (SP já está testando)
+
+################################################################################################################################################################
+
+Bibliografia:
+  [1] http://middlewarenews.blogspot.com.br/2015/07/getting-going-without-turning-off-ibm.html
+  [2] https://www.ibm.com/developerworks/community/blogs/messaging/entry/bitesize_blogging_mq_v8_controlling_client_user_security_using_chlauth_chckclnt?lang=en
+  [3] https://www.ibm.com/support/knowledgecenter/en/SSFKSJ_8.0.0/com.ibm.mq.sec.doc/q113250_.htm
+  [4] https://www.ibm.com/support/knowledgecenter/en/SSLTBW_2.1.0/com.ibm.zos.v2r1.halz001/ttlsenvironmentadvancedparms.htm  
+  [5] https://www-01.ibm.com/support/docview.wss?uid=swg27041997
+  
+################################################################################################################################################################
+
+
+https://www.ibm.com/support/knowledgecenter/en/SSFKSJ_9.0.0/com.ibm.mq.sec.doc/q113250_.htm
+ALTER QMGR CONNAUTH(USE.PW)
+DEFINE AUTHINFO(USE.PW) +
+AUTHTYPE(IDPWOS) +
+FAILDLAY(10) +
+CHCKLOCL(OPTIONAL) +
+CHCKCLNT(REQUIRED)
+REFRESH SECURITY TYPE(CONNAUTH)
+
+
+https://www.ibm.com/support/knowledgecenter/en/SSFKSJ_8.0.0/com.ibm.mq.ref.adm.doc/q085490_.htm
+
+
+ALTER QMGR CONNAUTH(USE.PW)
+DEFINE AUTHINFO(USE.PW) +
+AUTHTYPE(IDPWOS) +
+FAILDLAY(10) +
+CHCKLOCL(OPTIONAL) +
+CHCKCLNT(REQUIRED)
+REFRESH SECURITY TYPE(CONNAUTH)
+
+
+ALTER QMGR CONNAUTH('SYSTEM.DEFAULT.AUTHINFO.IDPWOS')
+DEFINE AUTHINFO('SYSTEM.DEFAULT.AUTHINFO.IDPWOS')       +
+AUTHTYPE(IDPWOS) ADOPTCTX(YES) CHCKCLNT(OPTIONAL) 
+REFRESH SECURITY TYPE(CONNAUTH)
+
+
+TLS_RSA_WITH_AES_256_CBC_SHA256
+
+
+1.49.21 S0294682  ICH408I USER(P797177 ) GROUP(USUPRE  ) NAME(RONEI GRIMM         )  741      
+  741               BRS1.SET.CHLAUTH CL(MQCMDS  )                                             
+  741               INSUFFICIENT ACCESS AUTHORITY                                             
+  741               FROM ** (G)                                                               
+  741               ACCESS INTENT(CONTROL)  ACCESS ALLOWED(NONE   )                           
+
+
+SYSTEM.CHLAUTH.DATA.QUEUE
+
+
+12.09.13 S0295099  +CSQX791I !BRS1 CSQXRESP Client application MQ Explorer 8.0.0 from  008    
+   008              address  (10.208.24.160 did not supply a user ID and password, Detail:    
+   008              CLNTUSER(p797177) ADDRESS(df7259et373.corp.caixa.gov.br)                  
+
+
+2.09.13 S0295099  +CSQX791I !BRS1 CSQXRESP Client application MQ Explorer 8.0.0 from  008                      
+  008              address  (10.208.24.160 did not supply a user ID and password, Detail:                      
+  008              CLNTUSER(p797177) ADDRESS(df7259et373.corp.caixa.gov.br)                                    
+2.11.11 S0295099  +CSQX791I !BRS1 CSQXRESP Client application MQ Explorer 8.0.0 from  020                      
+  020              address  (10.208.24.160 did not supply a user ID and password, Detail:                      
+  020              CLNTUSER(P797177) ADDRESS(df7259et373.corp.caixa.gov.br)                                    
+2.11.37 S0295099  +CSQX791I !BRS1 CSQXRESP Client application MQ Explorer 8.0.0 from  021                      
+  021              address  (10.208.24.160 did not supply a user ID and password, Detail:                      
+  021              CLNTUSER(P797177) ADDRESS(df7259et373.corp.caixa.gov.br)                                    
+2.14.13 S0295099  +CSQX791I !BRS1 CSQXRESP Client application MQ Explorer 8.0.0 from  028                      
+  028              address  (10.208.24.160 did not supply a user ID and password, Detail:                      
+  028              CLNTUSER(P797177) ADDRESS(df7259et373.corp.caixa.gov.br)                                    
+2.15.11 S0295099  +CSQX790I !BRS1 CSQXRESP Connection authentication failed for user  044                      
+  044              P797177 due to CHLAUTH with CHCKCLNT(REQUIRED), Detail:                                     
+  044              CLNTUSER(P797177) ADDRESS(df7259et373.corp.caixa.gov.br)                                    
+
+
+12.17.02 S0295099  +CSQX790I !BRS1 CSQXRESP Connection authentication failed for user  064    
+   064              P797177 due to CHLAUTH with CHCKCLNT(REQUIRED), Detail:                   
+   064              CLNTUSER(P797177) ADDRESS(df7259et373.corp.caixa.gov.br)                  
+12.17.02 S0295099  +CSQX519E !BRS1 CSQXRESP Channel SYSTEM.BRK.CONFIG not defined  065        
+   065              connection df7259nb274 (10.208.24.69)                                     
+12.17.02 S0295099  +CSQX599E !BRS1 CSQXRESP Channel SYSTEM.BRK.CONFIG ended abnormally  066   
+   066              connection 10.208.24.69                                                   
+
+
+
+ CHLAUTH(SYSTEM.BKR.CONFIG)         
+ TYPE(ADDRESSMAP)                   
+ ADDRESS(*)                         
+ ALTDATE(2018-06-07)                
+ ALTTIME(11.58.31)                  
+ CHCKCLNT(REQUIRED)                 
+ CUSTOM( )                          
+ DESCR( )                           
+ MCAUSER( )                         
+ USERSRC(CHANNEL)                   
+ WARN(NO)                           
+
+
+12.15.10 S0294682  ICH408I USER(P797177 ) GROUP(USUPRE  ) NAME(RONEI GRIMM         )  042   
+   042               LOGON/JOB INITIATION - INVALID PASSWORD                                
+12.15.10 S0294682  IRR013I  VERIFICATION FAILED. INVALID PASSWORD GIVEN.                    
+12.16.57 S0294682  ICH408I USER(P797177 ) GROUP(USUPRE  ) NAME(RONEI GRIMM         )  061   
+   061               LOGON/JOB INITIATION - INVALID PASSWORD                                
+12.16.57 S0294682  IRR013I  VERIFICATION FAILED. INVALID PASSWORD GIVEN.                    
+12.18.25 S0294682  ICH408I USER(c101203 ) GROUP(        ) NAME(???                 )  078   
+   078               LOGON/JOB INITIATION - USER AT TERMINAL          NOT RACF-DEFINED      
+12.18.25 S0294682  IRR012I  VERIFICATION FAILED. USER PROFILE NOT FOUND.                    
+
+
+ BRS1MSTR S0294682 SMQBRS1Q 
+  BRS1CHIN S0295099 SMQBRS1C 
+
+ AUTHINFO(SYSTEM.DEFAULT.AUTHINFO.IDPWOS)      
+ AUTHTYPE(IDPWOS)                              
+ QSGDISP(QMGR)                                 
+ ADOPTCTX(YES)                                 
+ CHCKCLNT(OPTIONAL)                            
+ CHCKLOCL(OPTIONAL)                            
+ FAILDLAY(1)                                   
+ DESCR( )                                      
+ ALTDATE(2018-06-07)                           
+ ALTTIME(11.45.16) 
+
+                            
+http://www-01.ibm.com/support/docview.wss?uid=swg1PI65413
+
+
+CSQX081I !BRS1 CSQXGIP SSLKEYR=BRS1RING       
+
+
+BRS1.TO.BRS3.TSTST
+
+
+ALTER QMGR SSLKEYR(MQBRS1RING) 
+
+SYSTEM.CHLAUTH.DATA.QUEUE
+
+
+4.25.04 S0295100  ICH408I USER(SMQBRS3C) GROUP(STC     ) NAME(CHANNEL INIT  BRS1  )  553        
+  553               CEF1.PLEX00.PARMLIB CL(DATASET ) VOL(PLEX01)                                
+  553               INSUFFICIENT ACCESS AUTHORITY                                               
+  553               FROM CEF1.PLEX00.** (G)                                                     
+  553               ACCESS INTENT(READ   )  ACCESS ALLOWED(NONE   )                             
+4.25.04 S0295100  IEC150I 913-38,IFG0194E,BRS3CHIN,BRS3CHIN,SYSTCPD,43E9,PLEX01,  554           
+  554             CEF1.PLEX00.PARMLIB(DATS301)                                                  
+4.25.04 S0295100  +CSQX500I !BRS3 CSQXRESP Channel BRS1.TO.BRS3.TSTST started  555              
+  555              connection 10.192.48.161                                                     
+******************************* BOTTOM OF DATA *************************************************
+
+
+BRS1.TO.BRS3.TSTST
+
+
+SET CHLAUTH(BRS1.TO.BRS3.TSTST) TYPE(SSLPEERMAP) ACTION(REMOVE)
+
+
+ TYPE(USERMAP) CLNTUSER(testuser) ACTION(REMOVE)
+
+SET CHLAUTH(BRS1.TO.BRS3.TSTST) TYPE(SSLPEERMAP) ACTION(REMOVE)  
+   
+CSQN205I   COUNT=       3, RETURN=0000000C, REASON=00000068         
+CSQM149I !BRS3 CSQMSCA 'SSLPEER' REQUIRED WITH TYPE 'SSLPEERMAP'    
+CSQ9023E !BRS3 CSQMSCA ' SET CHLAUTH' ABNORMAL COMPLETION           
+
+
+SET CHLAUTH(BRS1.TO.BRS3.TSTST)                         
+TYPE(SSLPEERMAP)                                    
+MCAUSER(SMQBRS3C)                                   
+SSLPEER(                                            
+ CN=QBP3.TO.SPPH, O=CAIXA ECONOMICA FEDERAL, C=BR   
+ )                                                  
+USERSRC(MAP)                                        
+
+ACTION(REMOVE) 
+
+SET CHLAUTH(YYYY.TO.XXXX) TYPE(SSLPEERMAP) SSLPEER('CN=YYYY.TO.XXXX, O=Caixa Economica Federal, C=BR') USERSRC(MAP) MCAUSER(SMQXXXXC)
+
+ SET CHLAUTH(BRS1.TO.BRS3.*)  +      
+ TYPE(ADDRESSMAP) +                  
+ ADDRESS('*')     +                  
+ USERSRC(NOACCESS)  +                
+ ACTION(ADD)                         
+ /*                                  
+
+
+REFRESH SECURITY TYPE(SSL)              
+
+
+SET CHLAUTH('BRS1.TO.BRS3.TSTST')  +                                       
+TYPE(SSLPEERMAP)  +                                                        
+MCAUSER(SMQBRS3C)  +                                                       
+SSLPEER('CN="QBP3.TO.SPPH", OU="AC CORPORATIVA APLICACOES V4",         -   
+O="Caixa Economica Federal", C="BR"') +                                    
+USERSRC(MAP) ACTION(ADD)                                                   
+
+ALTER QMGR REVDNS(DISABLED)
+
+DISPLAY CHLAUTH(SYSTEM.ADMIN.SVRCONN) MATCH(RUNCHECK)
+SSLPEER(‘CN=“Morag Hughson”, O=“IBM UK”’)
+CLNTUSER(‘mhughson’) ADDRESS(‘9.180.165.163’)

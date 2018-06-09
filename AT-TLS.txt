@@ -1,0 +1,607 @@
+BRS1  teste1
+
+ALTER QMGR CONNAUTH('SYSTEM.DEFAULT.AUTHINFO.IDPWOS')       
+DEFINE AUTHINFO('SYSTEM.DEFAULT.AUTHINFO.IDPWOS')       +   
+AUTHTYPE(IDPWOS) ADOPTCTX(YES) CHCKCLNT(OPTIONAL)           
+REFRESH SECURITY TYPE(CONNAUTH)                             
+
+
+ALTER QMGR CHLAUTH(ENABLED)                                       
+SET CHLAUTH(SYSTEM.BKR.CONFIG) TYPE(ADDRESSMAP) ADDRESS('*')   +  
+USERSRC(CHANNEL) CHCKCLNT(REQUIRED)                               
+
+executou com erro, 
+CSQM056E !BRS1 CSQMSCA MQOPEN failed for queue                    
+SYSTEM.CHLAUTH.DATA.QUEUE, MQRC=2085 (MQRC_UNKNOWN_OBJECT_NAME)   
+
+foi definida a fila e resubmetido o cmd
+
+ALTER QMGR CHLAUTH(ENABLED)                                          
+SET CHLAUTH(SYSTEM.BKR.CONFIG) TYPE(ADDRESSMAP) ADDRESS('*')   +     
+USERSRC(CHANNEL) CHCKCLNT(REQUIRED)                                  
+
+resultou erro
+CSQM095I !BRS1 CSQMSCA CHLAUTH(SYSTEM.BKR.CONFIG) ALREADY EXISTS
+
+Ou seja, apesar de o comando anterior acusar erro, ele fez 
+a alteração solicitada.
+
+
+DIS CHLAUTH(SYSTEM.BKR.CONFIG) ALL                              
+CSQN205I   COUNT=       3, RETURN=00000000, REASON=00000000     
+CSQM454I !BRS1                                                  
+ CHLAUTH(SYSTEM.BKR.CONFIG)                                     
+ TYPE(ADDRESSMAP)                                               
+ ADDRESS(*)                                                     
+ ALTDATE(2018-06-07)                                            
+ ALTTIME(11.58.31)                                              
+ CHCKCLNT(REQUIRED)                                             
+ CUSTOM( )                                                      
+ DESCR( )                                                       
+ MCAUSER( )                                                     
+ USERSRC(CHANNEL)                                               
+ WARN(NO)                                                       
+CSQ9022I !BRS1 CSQMDRTS ' DIS CHLAUTH' NORMAL COMPLETION        
+
+
+DIS QMGR ALL                                                                     
+CSQN205I   COUNT=       3, RETURN=00000000, REASON=00000000                      
+CSQM409I !BRS1                                                                   
+ QMNAME(BRS1)                                                                    
+ DESCR(IBM WebSphere MQSeries for z/OS - V8.0)                                   
+ PLATFORM(MVS)                                                                   
+ CPILEVEL(100)                                                                   
+ CMDLEVEL(800)                                                                   
+ VERSION(08000000)                                                               
+ CCSID(500)                                                                      
+ CHLAUTH(ENABLED)                                                                
+ MAXPRTY(9)                                                                      
+ MAXMSGL(104857600)                                                              
+ SYNCPT(AVAILABLE)                                                               
+ QSGNAME( )                                                                      
+ COMMANDQ(SYSTEM.COMMAND.INPUT)                                                  
+ DEADQ(BRS1.DEAD.QUEUE)                                                          
+ TRIGINT(999999999)                                                              
+ MAXHANDS(256)                                                                   
+ MAXUMSGS(10000)                                                                 
+ EXPRYINT(3600)                                                                  
+ AUTHOREV(DISABLED)                                                              
+INHIBTEV(DISABLED)            
+LOCALEV(DISABLED)             
+REMOTEEV(DISABLED)            
+STRSTPEV(ENABLED)             
+PERFMEV(DISABLED)             
+CONFIGEV(DISABLED)            
+CMDEV(DISABLED)               
+CHLEV(DISABLED)               
+SSLEV(DISABLED)               
+BRIDGEEV(DISABLED)            
+CHADEXIT( )                   
+CLWLDATA( )                   
+CLWLEXIT( )                   
+CLWLLEN(100)                  
+CLWLMRUC(999999999)           
+CLWLUSEQ(LOCAL)               
+REPOS( )                      
+REPOSNL( )                    
+QMID(BRS1.CC2F17716E5CDD8A)   
+DEFXMITQ(BRS1.XMIT.QUEUE)     
+SQQMNAME(USE)                 
+MARKINT(5000)                 
+MAXPROPL(NOLIMIT)              
+SSLRKEYC(0)                    
+SSLKEYR(BRS1RING)              
+SSLCRLNL( )                    
+SSLTASKS(10)                   
+SSLFIPS(NO)                    
+CERTLABL(ibmWebSphereMQBRS1)   
+CERTQSGL( )                    
+IGQ(DISABLED)                  
+IGQAUT(DEF)                    
+IGQUSER( )                     
+IPADDRV(IPV4)                  
+ACCTQ(ON)                      
+MONQ(OFF)                      
+MONCHL(OFF)                    
+MONACLS(QMGR)                  
+ROUTEREC(MSG)                  
+ACTIVREC(MSG)                  
+PARENT( )                      
+TREELIFE(1800)                 
+PSMODE(ENABLED)                
+PSCLUS(ENABLED)                
+PSNPMSG(DISCARD)                   
+PSNPRES(NORMAL)                    
+PSRTYCNT(5)                        
+PSSYNCPT(IFPER)                    
+GROUPUR(DISABLED)                  
+SCYCASE(UPPER)                     
+CHIADAPS(8)                        
+CHIDISPS(5)                        
+MAXCHL(200)                        
+ACTCHL(200)                        
+TCPCHL(20)                         
+TCPKEEP(NO)                        
+TCPNAME(HASTCP03)                  
+TCPSTACK(MULTIPLE)                 
+OPORTMIN(0)                        
+OPORTMAX(0)                        
+LU62CHL(200)                       
+LUGROUP( )                         
+LUNAME(BRS1)                       
+LU62ARM(00)                        
+DNSGROUP( )                        
+DNSWLM(NO)                         
+ LSTRTMR(60)                                           
+ RCVTIME(0)                                            
+ RCVTTYPE(MULTIPLY)                                    
+ RCVTMIN(0)                                            
+ ADOPTCHK(ALL)                                         
+ ADOPTMCA(NO)                                          
+ TRAXTBL(2)                                            
+ TRAXSTR(YES)                                          
+ CHISERVP(20100000000000000000000000000000)            
+ CFCONLOS(TERMINATE)                                   
+ SPLCAP(DISABLED)                                      
+ DEFCLXQ(SCTQ)                                         
+ CUSTOM( )                                             
+ REVDNS(ENABLED)                                       
+ CONNAUTH(SYSTEM.DEFAULT.AUTHINFO.IDPWOS)              
+ STATCHL(LOW)                                          
+ STATACLS(QMGR)                                        
+ ALTDATE(2018-06-07)                                   
+ ALTTIME(12.03.20)                                     
+CSQ9022I !BRS1 CSQMDRTS ' DIS QMGR' NORMAL COMPLETION  
+
+
+
+DIS  AUTHINFO('SYSTEM.DEFAULT.AUTHINFO.IDPWOS')                   
+CSQN205I   COUNT=       3, RETURN=00000000, REASON=00000000       
+CSQM437I !BRS1                                                    
+ AUTHINFO(SYSTEM.DEFAULT.AUTHINFO.IDPWOS)                         
+ AUTHTYPE(IDPWOS)                                                 
+ QSGDISP(QMGR)                                                    
+ ADOPTCTX(YES)                                                    
+ CHCKCLNT(OPTIONAL)                                               
+ CHCKLOCL(OPTIONAL)                                               
+ FAILDLAY(1)                                                      
+ DESCR( )                                                         
+ ALTDATE(2018-06-07)                                              
+ ALTTIME(11.45.16)                                                
+CSQ9022I !BRS1 CSQMDRTS ' DIS AUTHINFO' NORMAL COMPLETION         
+
+...................................................................
+
+brs3
+
+SET CHLAUTH(BRS1.TO.BRS3.TSTST)                              +      
+TYPE(SSLPEERMAP)                                             +      
+SSLPEER('CN="QBP3.TO.SPPH", O="CAIXA ECONOMICA FEDERAL", C="BR"')  +      
+USERSRC(MAP) MCAUSER(SMQBRS3C)                                      
+
+
+erro:
+CSQM056E !BRS3 CSQMSCA MQOPEN failed for queue                 
+SYSTEM.CHLAUTH.DATA.QUEUE, MQRC=2085 (MQRC_UNKNOWN_OBJECT_NAME)
+
+foi definida a fila e resubmetido o cmd
+
+resultou erro
+CSQM095I !BRS3 CSQMSCA CHLAUTH(BRS1.TO.BRS3.TSTST) ALREADY EXISTS
+
+
+DIS CHLAUTH(BRS1.TO.BRS3.TSTST)                             
+CSQN205I   COUNT=       3, RETURN=00000000, REASON=00000000 
+CSQM454I !BRS3                                              
+ CHLAUTH(BRS1.TO.BRS3.TSTST)                                
+ TYPE(SSLPEERMAP)                                           
+ MCAUSER(SMQBRS3C)                                          
+ SSLPEER(                                                   
+  CN=QBP3.TO.SPPH, O=CAIXA ECONOMICA FEDERAL, C=BR          
+  )                                                         
+ USERSRC(MAP)                                               
+CSQ9022I !BRS3 CSQMDRTS ' DIS CHLAUTH' NORMAL COMPLETION    
+
+Ou seja, apesar de o comando anterior acusar erro, ele fez 
+a alteração solicitada.
+
+DIS QMGR  ALL                                                            
+CSQN205I   COUNT=       3, RETURN=00000000, REASON=00000000              
+CSQM409I !BRS3                                                           
+ QMNAME(BRS3)                                                            
+ DESCR(IBM Websphere MQSeries for Z/os - V8.0)                           
+ PLATFORM(MVS)                                                           
+ CPILEVEL(100)                                                           
+ CMDLEVEL(800)                                                           
+ VERSION(08000000)                                                       
+ CCSID(500)                                                              
+ CHLAUTH(DISABLED)                                                       
+ MAXPRTY(9)                                                              
+ MAXMSGL(104857600)                                                      
+ SYNCPT(AVAILABLE)                                                       
+ QSGNAME( )                                                              
+ COMMANDQ(SYSTEM.COMMAND.INPUT)                                          
+ DEADQ(BRS3.DEAD.QUEUE)                                                  
+ TRIGINT(999999999)                                                      
+ MAXHANDS(256)                                                           
+ MAXUMSGS(10000)                                                         
+ EXPRYINT(3600)                                                          
+ AUTHOREV(DISABLED)                                                      
+INHIBTEV(DISABLED)              
+LOCALEV(DISABLED)               
+REMOTEEV(DISABLED)              
+STRSTPEV(DISABLED)              
+PERFMEV(DISABLED)               
+CONFIGEV(DISABLED)              
+CMDEV(DISABLED)                 
+CHLEV(DISABLED)                 
+SSLEV(DISABLED)                 
+BRIDGEEV(DISABLED)              
+CHADEXIT( )                     
+CLWLDATA( )                     
+CLWLEXIT( )                     
+CLWLLEN(100)                    
+CLWLMRUC(999999999)             
+CLWLUSEQ(LOCAL)                 
+REPOS( )                        
+REPOSNL( )                      
+QMID(BRS3.CAA7445A848E2E04)     
+DEFXMITQ(BRS3.XMIT.QUEUE)       
+SQQMNAME(USE)                   
+MARKINT(5000)                   
+MAXPROPL(NOLIMIT)            
+SSLRKEYC(0)                  
+SSLKEYR(MQBRS3RING)          
+SSLCRLNL( )                  
+SSLTASKS(10)                 
+SSLFIPS(NO)                  
+CERTLABL(ibmWebSphereMQBRS3) 
+CERTQSGL( )                  
+IGQ(DISABLED)                
+IGQAUT(DEF)                  
+IGQUSER( )                   
+IPADDRV(IPV4)                
+ACCTQ(ON)                    
+MONQ(OFF)                    
+MONCHL(OFF)                  
+MONACLS(QMGR)                
+ROUTEREC(MSG)                
+ACTIVREC(MSG)                
+PARENT( )                    
+TREELIFE(1800)               
+PSMODE(ENABLED)              
+PSCLUS(ENABLED)              
+PSNPMSG(DISCARD)            
+PSNPRES(NORMAL)             
+PSRTYCNT(5)                 
+PSSYNCPT(IFPER)             
+GROUPUR(DISABLED)           
+SCYCASE(UPPER)              
+CHIADAPS(8)                 
+CHIDISPS(5)                 
+MAXCHL(200)                 
+ACTCHL(200)                 
+TCPCHL(195)                 
+TCPKEEP(NO)                 
+TCPNAME(HASTCP03)           
+TCPSTACK(MULTIPLE)          
+OPORTMIN(0)                 
+OPORTMAX(0)                 
+LU62CHL(5)                  
+LUGROUP( )                  
+LUNAME(BRS3)                
+LU62ARM(00)                 
+DNSGROUP( )                 
+DNSWLM(NO)                  
+LSTRTMR(60)                                           
+RCVTIME(0)                                            
+RCVTTYPE(MULTIPLY)                                    
+RCVTMIN(0)                                            
+ADOPTCHK(ALL)                                         
+ADOPTMCA(NO)                                          
+TRAXTBL(2)                                            
+TRAXSTR(YES)                                          
+CHISERVP(20100000000000000000000000000000)            
+CFCONLOS(TERMINATE)                                   
+SPLCAP(DISABLED)                                      
+DEFCLXQ(SCTQ)                                         
+CUSTOM( )                                             
+REVDNS(ENABLED)                                       
+CONNAUTH( )                                           
+STATCHL(OFF)                                          
+STATACLS(QMGR)                                        
+ALTDATE(2018-06-05)                                   
+ALTTIME(17.35.06)                                     
+SQ9022I !BRS3 CSQMDRTS ' DIS QMGR' NORMAL COMPLETION  
+
+
+ALTER QMGR CHLAUTH(ENABLED)    
+
+
+teste não funcionou   
+
+RESULTADO : CA USER ID . . . . . . . . : DUMMY 
+ESPERADO SMQBRS3C     
+
+
+ALTER QMGR SSLKEYR(MQBRS1RING) 
+
+DIS QMGR ALL                                                    
+CSQN205I   COUNT=       3, RETURN=00000000, REASON=00000000     
+CSQM409I !BRS3                                                  
+ QMNAME(BRS3)                                                   
+ DESCR(IBM Websphere MQSeries for Z/os - V8.0)                  
+ PLATFORM(MVS)                                                  
+ CPILEVEL(100)                                                  
+ CMDLEVEL(800)                                                  
+ VERSION(08000000)                                              
+ CCSID(500)                                                     
+ CHLAUTH(ENABLED)                                               
+ MAXPRTY(9)                                                     
+ MAXMSGL(104857600)                                             
+ SYNCPT(AVAILABLE)                                              
+ QSGNAME( )                                                     
+ COMMANDQ(SYSTEM.COMMAND.INPUT)                                 
+ DEADQ(BRS3.DEAD.QUEUE)                                         
+CHLAUTH(ENABLED)                  
+MAXPRTY(9)                        
+MAXMSGL(104857600)                
+SYNCPT(AVAILABLE)                 
+QSGNAME( )                        
+COMMANDQ(SYSTEM.COMMAND.INPUT)    
+DEADQ(BRS3.DEAD.QUEUE)            
+TRIGINT(999999999)                
+MAXHANDS(256)                     
+MAXUMSGS(10000)                   
+EXPRYINT(3600)                    
+AUTHOREV(DISABLED)                
+INHIBTEV(DISABLED)                
+LOCALEV(DISABLED)                 
+REMOTEEV(DISABLED)                
+STRSTPEV(DISABLED)                
+PERFMEV(DISABLED)                 
+CONFIGEV(DISABLED)                
+CMDEV(DISABLED)                   
+CHLEV(DISABLED)                   
+SSLEV(DISABLED)                   
+BRIDGEEV(DISABLED)                
+CHADEXIT( )                     
+CLWLDATA( )                     
+CLWLEXIT( )                     
+CLWLLEN(100)                    
+CLWLMRUC(999999999)             
+CLWLUSEQ(LOCAL)                 
+REPOS( )                        
+REPOSNL( )                      
+QMID(BRS3.CAA7445A848E2E04)     
+DEFXMITQ(BRS3.XMIT.QUEUE)       
+SQQMNAME(USE)                   
+MARKINT(5000)                   
+MAXPROPL(NOLIMIT)               
+SSLRKEYC(0)                     
+SSLKEYR(MQBRS3RING)             
+SSLCRLNL( )                     
+SSLTASKS(10)                    
+SSLFIPS(NO)                     
+CERTLABL(ibmWebSphereMQBRS3)    
+CERTQSGL( )                     
+IGQ(DISABLED)                   
+IGQAUT(DEF)                     
+IGQUSER( )               
+IPADDRV(IPV4)            
+ACCTQ(ON)                
+MONQ(OFF)                
+MONCHL(OFF)              
+MONACLS(QMGR)            
+ROUTEREC(MSG)            
+ACTIVREC(MSG)            
+PARENT( )                
+TREELIFE(1800)           
+PSMODE(ENABLED)          
+PSCLUS(ENABLED)          
+PSNPMSG(DISCARD)         
+PSNPRES(NORMAL)          
+PSRTYCNT(5)              
+PSSYNCPT(IFPER)          
+GROUPUR(DISABLED)        
+SCYCASE(UPPER)           
+CHIADAPS(8)              
+CHIDISPS(5)              
+MAXCHL(200)              
+ACTCHL(200)              
+TCPCHL(195)                                  
+TCPKEEP(NO)                                  
+TCPNAME(HASTCP03)                            
+TCPSTACK(MULTIPLE)                           
+OPORTMIN(0)                                  
+OPORTMAX(0)                                  
+LU62CHL(5)                                   
+LUGROUP( )                                   
+LUNAME(BRS3)                                 
+LU62ARM(00)                                  
+DNSGROUP( )                                  
+DNSWLM(NO)                                   
+LSTRTMR(60)                                  
+RCVTIME(0)                                   
+RCVTTYPE(MULTIPLY)                           
+RCVTMIN(0)                                   
+ADOPTCHK(ALL)                                
+ADOPTMCA(NO)                                 
+TRAXTBL(2)                                   
+TRAXSTR(YES)                                 
+CHISERVP(20100000000000000000000000000000)   
+CFCONLOS(TERMINATE)                          
+SPLCAP(DISABLED)                                     
+DEFCLXQ(SCTQ)                                        
+CUSTOM( )                                            
+REVDNS(ENABLED)                                      
+CONNAUTH( )                                          
+STATCHL(OFF)                                         
+STATACLS(QMGR)                                       
+ALTDATE(2018-06-08)                                  
+ALTTIME(14.18.38)                                    
+SQ9022I !BRS3 CSQMDRTS ' DIS QMGR' NORMAL COMPLETION 
+
+
+DIS CHLAUTH (*)                                                            
+CSQN205I   COUNT=       3, RETURN=00000000, REASON=00000000                
+CSQM454I !BRS3                                                             
+ CHLAUTH(BRS1.TO.BRS3.TSTST)                                               
+ TYPE(SSLPEERMAP)                                                          
+ MCAUSER(SMQBRS3C)                                                         
+ SSLPEER(                                                                  
+  CN=QBP3.TO.SPPH, O=CAIXA ECONOMICA FEDERAL, C=BR                         
+  )                                                                        
+ USERSRC(MAP)                                                              
+CSQ9022I !BRS3 CSQMDRTS ' DIS CHLAUTH' NORMAL COMPLETION                   
+
+
+SET CHLAUTH(BRS1.TO.BRS3.TSTST)  +                                  
+TYPE(SSLPEERMAP)  +                                                 
+MCAUSER(SMQBRS3C)  +                                                
+SSLPEER('CN=QBP3.TO.SPPH, O=CAIXA ECONOMICA FEDERAL, C=BR')  +      
+USERSRC(MAP) ACTION(REMOVE)                                         
+
+SET CHLAUTH('BRS1.TO.BRS3.*')  +               
+TYPE(ADDRESSMAP) +                             
+ADDRESS('*')     +                             
+USERSRC(NOACCESS)  +                           
+ACTION(ADD)                                    
+
+
+SET CHLAUTH('BRS1.TO.BRS3.TSTST')  +      
+TYPE(SSLPEERMAP)  +                       
+MCAUSER(SMQBRS3C)  +                      
+SSLPEER('CN=*') +                         
+USERSRC(MAP) ACTION(ADD)                  
+
+
+
+
+SET CHLAUTH('BRS1.TO.BRS3.TSTST')  +      
+TYPE(SSLPEERMAP)  +                       
+MCAUSER(SMQBRS3C)  +                      
+SSLPEER('CN=*') +                         
+USERSRC(MAP) ACTION(ADD)                  
+
+DIS CHLAUTH(*)                                                
+CSQN205I   COUNT=       4, RETURN=00000000, REASON=00000000   
+CSQM454I !BRS3                                                
+ CHLAUTH(BRS1.TO.BRS3.*)                                      
+ TYPE(ADDRESSMAP)                                             
+ ADDRESS(*)                                                   
+ USERSRC(NOACCESS)                                            
+CSQM454I !BRS3                                                
+ CHLAUTH(BRS1.TO.BRS3.TSTST)                                  
+ TYPE(SSLPEERMAP)                                             
+ MCAUSER(SMQBRS3C)                                            
+ SSLPEER(                                                     
+  CN=*                                                        
+  )                                                           
+ USERSRC(MAP)                                                 
+CSQ9022I !BRS3 CSQMDRTS ' DIS CHLAUTH' NORMAL COMPLETION      
+
+ REFRESH SECURITY TYPE(SSL) 
+
+
+
+SET CHLAUTH('BRS1.TO.BRS3.TSTST')  +         
+TYPE(SSLPEERMAP)  +                          
+MCAUSER(SMQBRS3C)  +                         
+SSLPEER('CN=*') +                            
+USERSRC(MAP) ACTION(REMOVE)                  
+
+
+SET CHLAUTH('BRS1.TO.BRS3.TSTST')  +  
+TYPE(ADDRESSMAP)  +                   
+MCAUSER(SMQBRS3C)  +                  
+ADDRESS('*') +                        
+USERSRC(MAP) ACTION(ADD)              
+
+
+SET CHLAUTH('BRS1.TO.BRS3.TSTST')  +  
+TYPE(ADDRESSMAP)  +                   
+MCAUSER(SMQBRS3C)  +                  
+ADDRESS('*') +                        
+USERSRC(MAP) ACTION(REMOVE)           
+
+
+SET CHLAUTH('BRS1.TO.BRS3.TSTST')  +                                      
+TYPE(SSLPEERMAP)  +                                                       
+MCAUSER(SMQBRS3C)  +                                                      
+SSLPEER('CN="QBP3.TO.SPPH", OU="AC CORPORATIVA APLICACOES V4",         -  
+O="CAIXA ECONOMICA FEDERAL", C="BR"') +                                   
+USERSRC(MAP) ACTION(ADD)                                                  
+
+DIS CHLAUTH('BRS1.TO.BRS3.TSTST')                                                                      
+CSQN205I   COUNT=       3, RETURN=00000000, REASON=00000000                                            
+CSQM454I !BRS3                                                                                         
+ CHLAUTH(BRS1.TO.BRS3.TSTST)                                                                           
+ TYPE(SSLPEERMAP)                                                                                      
+ MCAUSER(SMQBRS3C)                                                                                     
+ SSLPEER(                                                                                              
+  CN="QBP3.TO.SPPH", OU="AC CORPORATIVA APLICACOES V4",         O="CAIXA ECONOMICA FEDERAL", C="BR"    
+  )                                                                                                    
+ USERSRC(MAP)                                                                                          
+CSQ9022I !BRS3 CSQMDRTS ' DIS CHLAUTH' NORMAL COMPLETION                                               
+
+
+SET CHLAUTH('BRS1.TO.BRS3.TSTST')  +                                      
+TYPE(SSLPEERMAP)  +                                                       
+MCAUSER(SMQBRS3C)  +                                                      
+SSLPEER('CN="QBP3.TO.SPPH", OU="AC CORPORATIVA APLICACOES V4",         -  
+O="CAIXA ECONOMICA FEDERAL", C="BR"') +                                   
+USERSRC(MAP) ACTION(REMOVE)                                               
+
+
+SET CHLAUTH('BRS1.TO.BRS3.*')  +          
+TYPE(ADDRESSMAP) +                        
+ADDRESS('*')     +                        
+USERSRC(NOACCESS)  +                      
+ACTION(REMOVE)                            
+
+
+
+ CSQX658E !BRS1 CSQXRCTL SSL certificate has expired,          
+ channel BRS1.TO.BRS3.TSTST                                    
+ connection 10.192.48.161                                      
+ CSQ9023E !BRS1 CSQXCRPS ' START CHANNEL' ABNORMAL COMPLETION  
+
+SSL CIPHER SPECIFICATION  . : TLS_RSA_WITH_AES_256_CBC_SHA256
+
+
+brs1mstr
+10.21.17 S0295968  CSQM073I !BRS1 CSQMDURR Loading of durable subscribers started          
+10.21.17 S0295968  CSQM074I !BRS1 CSQMDURR Loading of durable subscribers finished         
+10.21.17 S0295968  CSQM075I !BRS1 CSQMDURR Consolidation of durable subscribers started    
+10.21.17 S0295968  CSQM076I !BRS1 CSQMDURR Consolidation of durable subscribers finished   
+
+
+BRS1CHIN
+11.02.15 S0295969  +CSQX500I !BRS1 CSQXRCTL Channel BRS1.TO.BRS3.TSTST started          
+11.02.15 S0295969  +CSQX658E !BRS1 CSQXRCTL SSL certificate has expired,  886           
+   886              channel BRS1.TO.BRS3.TSTST                                          
+   886              connection 10.192.48.161                                            
+11.02.15 S0295969  +CSQX599E !BRS1 CSQXRCTL Channel BRS1.TO.BRS3.TSTST ended abnormally 
+11.03.17 S0295969  +CSQX500I !BRS1 CSQXRCTL Channel BRS1.TO.BRS3.TSTST started          
+11.03.17 S0295969  +CSQX658E !BRS1 CSQXRCTL SSL certificate has expired,  919           
+   919              channel BRS1.TO.BRS3.TSTST                                          
+   919              connection 10.192.48.161                                            
+11.03.17 S0295969  +CSQX599E !BRS1 CSQXRCTL Channel BRS1.TO.BRS3.TSTST ended abnormally 
+
+brs3chin
+11.05.21 S0295971  +CSQX658E !BRS3 CSQXRESP SSL certificate has expired,  928            
+   928              channel BRS1.TO.BRS3.TSTST                                           
+   928              connection 10.192.48.161                                             
+11.06.21 S0295971  +CSQX658E !BRS3 CSQXRESP SSL certificate has expired,  941            
+   941              channel BRS1.TO.BRS3.TSTST                                           
+   941              connection 10.192.48.161                                             
+
+
+
+
+
+
+
+
+
