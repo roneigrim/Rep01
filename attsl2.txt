@@ -1,0 +1,919 @@
+Resultado dos testes WO
+
+
+
+1º teste:  executado em 07/06/2018 lpar S1DF queue manager BRS1
+...........................................................
+1. Para uso do MQ Explorer: definir canal SRVCONN de nome SYSTEM.BKR.CONFIG e reservar uma porta para essa comunicação.
+
+  1.1. Parâmetros do canal:
+    MCA USER ID : DUMMY
+    SSL CIPHER SPECIFICATION : TLS_RSA_WITH_AES_256_CBC_SHA256
+    SSL CERTIFICATE REQUIRED : Y
+  
+  1.2 Configurações a nível de MQ:
+    Definir o parâmetro CHCKCLNT(OPTIONAL)[2] e ADOPTCTX(YES)[1] na AUTHINFO e definir essa AUTHINFO para a CONNAUTH [3]:
+      ALTER QMGR CONNAUTH('SYSTEM.DEFAULT.AUTHINFO.IDPWOS')
+      ALTER AUTHINFO('SYSTEM.DEFAULT.AUTHINFO.IDPWOS') AUTHTYPE(IDPWOS) ADOPTCTX(YES) CHCKCLNT(OPTIONAL) 
+      REFRESH SECURITY TYPE(CONNAUTH)
+    Definir que o canal utiliza CHLAUTH e requere a senha para validação (CHCKCLNT(REQUIRED)):
+      ALTER QMGR CHLAUTH(ENABLED)
+      SET CHLAUTH(SYSTEM.BKR.CONFIG) TYPE(ADDRESSMAP) ADDRESS('*') USERSRC(CHANNEL) CHCKCLNT(REQUIRED)
+
+............... inicio 1º teste............................................
+Procedimentos:
+
+1- submetido comando:
+ALTER QMGR CONNAUTH('SYSTEM.BKR.CONFIG') 
+      
+DEFINE AUTHINFO('SYSTEM.DEFAULT.AUTHINFO.IDPWOS')       +   
+AUTHTYPE(IDPWOS) ADOPTCTX(YES) CHCKCLNT(OPTIONAL)    
+       
+REFRESH SECURITY TYPE(CONNAUTH)                             
+Resultado: ok
+(AUTHTYPE(IDPWOS) Indica que o gerenciador de filas usa o sistema operacional local 
+para autenticar o ID do usuário e a senha.)
+
+2-
+ALTER QMGR CHLAUTH(ENABLED)
+Resultado: ok
+(os canais irão exigir autenticação de acordo com regras estabelecidas)
+
+
+3-                                       
+SET CHLAUTH(SYSTEM.BKR.CONFIG) TYPE(ADDRESSMAP) ADDRESS('*')   +  
+USERSRC(CHANNEL) CHCKCLNT(REQUIRED)                               
+
+executou com erro, 
+CSQM056E !BRS1 CSQMSCA MQOPEN failed for queue                    
+SYSTEM.CHLAUTH.DATA.QUEUE, MQRC=2085 (MQRC_UNKNOWN_OBJECT_NAME)   
+
+foi definida a fila SYSTEM.CHLAUTH.DATA.QUEUE e resubmetido o cmd
+
+ALTER QMGR CHLAUTH(ENABLED)                                          
+SET CHLAUTH(SYSTEM.BKR.CONFIG) TYPE(ADDRESSMAP) ADDRESS('*')   +     
+USERSRC(CHANNEL) CHCKCLNT(REQUIRED)                                  
+
+resultou erro
+CSQM095I !BRS1 CSQMSCA CHLAUTH(SYSTEM.BKR.CONFIG) ALREADY EXISTS
+
+Conclusão, a regra já havia sido criada (memória) mas não havia 
+sido armazenada na fila SYSTEM.CHLAUTH.DATA.QUEUE.
+
+
+4- Display do ambiente
+DIS CHLAUTH(SYSTEM.BKR.CONFIG) ALL                              
+CSQN205I   COUNT=       3, RETURN=00000000, REASON=00000000     
+CSQM454I !BRS1                                                  
+ CHLAUTH(SYSTEM.BKR.CONFIG)                                     
+ TYPE(ADDRESSMAP)                                               
+ ADDRESS(*)                                                     
+ ALTDATE(2018-06-07)                                            
+ ALTTIME(11.58.31)                                              
+ CHCKCLNT(REQUIRED)                                             
+ CUSTOM( )                                                      
+ DESCR( )                                                       
+ MCAUSER( )                                                     
+ USERSRC(CHANNEL)                                               
+ WARN(NO)                                                       
+CSQ9022I !BRS1 CSQMDRTS ' DIS CHLAUTH' NORMAL COMPLETION        
+
+
+DIS QMGR ALL                                                                     
+CSQN205I   COUNT=       3, RETURN=00000000, REASON=00000000                      
+CSQM409I !BRS1                                                                   
+ QMNAME(BRS1)                                                                    
+ DESCR(IBM WebSphere MQSeries for z/OS - V8.0)                                   
+ PLATFORM(MVS)                                                                   
+ CPILEVEL(100)                                                                   
+ CMDLEVEL(800)                                                                   
+ VERSION(08000000)                                                               
+ CCSID(500)                                                                      
+ CHLAUTH(ENABLED)                                                                
+ MAXPRTY(9)                                                                      
+ MAXMSGL(104857600)                                                              
+ SYNCPT(AVAILABLE)                                                               
+ QSGNAME( )                                                                      
+ COMMANDQ(SYSTEM.COMMAND.INPUT)                                                  
+ DEADQ(BRS1.DEAD.QUEUE)                                                          
+ TRIGINT(999999999)                                                              
+ MAXHANDS(256)                                                                   
+ MAXUMSGS(10000)                                                                 
+ EXPRYINT(3600)                                                                  
+ AUTHOREV(DISABLED)                                                              
+INHIBTEV(DISABLED)            
+LOCALEV(DISABLED)             
+REMOTEEV(DISABLED)            
+STRSTPEV(ENABLED)             
+PERFMEV(DISABLED)             
+CONFIGEV(DISABLED)            
+CMDEV(DISABLED)               
+CHLEV(DISABLED)               
+SSLEV(DISABLED)               
+BRIDGEEV(DISABLED)            
+CHADEXIT( )                   
+CLWLDATA( )                   
+CLWLEXIT( )                   
+CLWLLEN(100)                  
+CLWLMRUC(999999999)           
+CLWLUSEQ(LOCAL)               
+REPOS( )                      
+REPOSNL( )                    
+QMID(BRS1.CC2F17716E5CDD8A)   
+DEFXMITQ(BRS1.XMIT.QUEUE)     
+SQQMNAME(USE)                 
+MARKINT(5000)                 
+MAXPROPL(NOLIMIT)              
+SSLRKEYC(0)                    
+SSLKEYR(BRS1RING)              
+SSLCRLNL( )                    
+SSLTASKS(10)                   
+SSLFIPS(NO)                    
+CERTLABL(ibmWebSphereMQBRS1)   
+CERTQSGL( )                    
+IGQ(DISABLED)                  
+IGQAUT(DEF)                    
+IGQUSER( )                     
+IPADDRV(IPV4)                  
+ACCTQ(ON)                      
+MONQ(OFF)                      
+MONCHL(OFF)                    
+MONACLS(QMGR)                  
+ROUTEREC(MSG)                  
+ACTIVREC(MSG)                  
+PARENT( )                      
+TREELIFE(1800)                 
+PSMODE(ENABLED)                
+PSCLUS(ENABLED)                
+PSNPMSG(DISCARD)                   
+PSNPRES(NORMAL)                    
+PSRTYCNT(5)                        
+PSSYNCPT(IFPER)                    
+GROUPUR(DISABLED)                  
+SCYCASE(UPPER)                     
+CHIADAPS(8)                        
+CHIDISPS(5)                        
+MAXCHL(200)                        
+ACTCHL(200)                        
+TCPCHL(20)                         
+TCPKEEP(NO)                        
+TCPNAME(HASTCP03)                  
+TCPSTACK(MULTIPLE)                 
+OPORTMIN(0)                        
+OPORTMAX(0)                        
+LU62CHL(200)                       
+LUGROUP( )                         
+LUNAME(BRS1)                       
+LU62ARM(00)                        
+DNSGROUP( )                        
+DNSWLM(NO)                         
+ LSTRTMR(60)                                           
+ RCVTIME(0)                                            
+ RCVTTYPE(MULTIPLY)                                    
+ RCVTMIN(0)                                            
+ ADOPTCHK(ALL)                                         
+ ADOPTMCA(NO)                                          
+ TRAXTBL(2)                                            
+ TRAXSTR(YES)                                          
+ CHISERVP(20100000000000000000000000000000)            
+ CFCONLOS(TERMINATE)                                   
+ SPLCAP(DISABLED)                                      
+ DEFCLXQ(SCTQ)                                         
+ CUSTOM( )                                             
+ REVDNS(ENABLED)                                       
+ CONNAUTH(SYSTEM.DEFAULT.AUTHINFO.IDPWOS)              
+ STATCHL(LOW)                                          
+ STATACLS(QMGR)                                        
+ ALTDATE(2018-06-07)                                   
+ ALTTIME(12.03.20)                                     
+CSQ9022I !BRS1 CSQMDRTS ' DIS QMGR' NORMAL COMPLETION  
+
+
+
+DIS  AUTHINFO('SYSTEM.DEFAULT.AUTHINFO.IDPWOS')                   
+CSQN205I   COUNT=       3, RETURN=00000000, REASON=00000000       
+CSQM437I !BRS1                                                    
+ AUTHINFO(SYSTEM.DEFAULT.AUTHINFO.IDPWOS)                         
+ AUTHTYPE(IDPWOS)                                                 
+ QSGDISP(QMGR)                                                    
+ ADOPTCTX(YES)                                                    
+ CHCKCLNT(OPTIONAL)                                               
+ CHCKLOCL(OPTIONAL)                                               
+ FAILDLAY(1)                                                      
+ DESCR( )                                                         
+ ALTDATE(2018-06-07)                                              
+ ALTTIME(11.45.16)                                                
+CSQ9022I !BRS1 CSQMDRTS ' DIS AUTHINFO' NORMAL COMPLETION    
+
+
+     
+5-teste do acesso ao canal srvconn (SYSTEM.BKR.CONFIG) usando MQ Explorer
+
+- de acordo com a regra estabelecida 	a conexão passou exigir identificação do usuário.
+
+- Configurado o MQexpl. para utilizar userid e password na conexão:
+ 
+  -Mainframe somente autentica se valores forem enviados em letras maiúsculas.
+
+
+............... final 1º teste............................................
+
+
+
+2º teste: executado em 08/06/2018 lpar S1DF queue manager BRS1 (sdr)  BRS3 (rcv)
+................................................................................
+
+2.2 Canal RCV:
+    Alocar uma porta específica para todos os canais RCV. Um canal para cada MQ de origem.
+    - PUTAUT : D
+    - MCA USER ID: DUMMY
+    *Usuario utilizado para put nas filas será o da task do channel initiator: SMQXXXXC
+    SET CHLAUTH(YYYY.TO.XXXX) TYPE(SSLPEERMAP) SSLPEER('CN=YYYY.TO.XXXX, O=Caixa Economica Federal, C=BR') USERSRC(MAP) MCAUSER(SMQXXXXC)  (Não sei se irá funcionar com o AT-TLS e sem o SSL CIPHER)
+
+............... inicio 2º teste....................................................
+Procedimentos:
+
+1-submetido comando (BRS3):
+SET CHLAUTH(BRS1.TO.BRS3.TSTST)                              +      
+TYPE(SSLPEERMAP)                                             +      
+SSLPEER('CN="QBP3.TO.SPPH", O="CAIXA ECONOMICA FEDERAL", C="BR"')  +      
+USERSRC(MAP) MCAUSER(SMQBRS3C)                                      
+
+erro:
+CSQM056E !BRS3 CSQMSCA MQOPEN failed for queue                 
+SYSTEM.CHLAUTH.DATA.QUEUE, MQRC=2085 (MQRC_UNKNOWN_OBJECT_NAME)
+
+foi definida a fila SYSTEM.CHLAUTH.DATA.QUEUE e resubmetido o cmd
+
+resultou erro
+CSQM095I !BRS3 CSQMSCA CHLAUTH(BRS1.TO.BRS3.TSTST) ALREADY EXISTS
+
+Conclusão, a regra já havia sido criada (memória) mas não havia 
+sido armazenada na fila SYSTEM.CHLAUTH.DATA.QUEUE.
+
+
+2- display da regra:
+DIS CHLAUTH(BRS1.TO.BRS3.TSTST)                             
+CSQN205I   COUNT=       3, RETURN=00000000, REASON=00000000 
+CSQM454I !BRS3                                              
+ CHLAUTH(BRS1.TO.BRS3.TSTST)                                
+ TYPE(SSLPEERMAP)                                           
+ MCAUSER(SMQBRS3C)                                          
+ SSLPEER(                                                   
+  CN=QBP3.TO.SPPH, O=CAIXA ECONOMICA FEDERAL, C=BR          
+  )                                                         
+ USERSRC(MAP)                                               
+CSQ9022I !BRS3 CSQMDRTS ' DIS CHLAUTH' NORMAL COMPLETION    
+
+
+DIS QMGR  ALL                                                            
+CSQN205I   COUNT=       3, RETURN=00000000, REASON=00000000              
+CSQM409I !BRS3                                                           
+ QMNAME(BRS3)                                                            
+ DESCR(IBM Websphere MQSeries for Z/os - V8.0)                           
+ PLATFORM(MVS)                                                           
+ CPILEVEL(100)                                                           
+ CMDLEVEL(800)                                                           
+ VERSION(08000000)                                                       
+ CCSID(500)                                                              
+ CHLAUTH(DISABLED)                                                       
+ MAXPRTY(9)                                                              
+ MAXMSGL(104857600)                                                      
+ SYNCPT(AVAILABLE)                                                       
+ QSGNAME( )                                                              
+ COMMANDQ(SYSTEM.COMMAND.INPUT)                                          
+ DEADQ(BRS3.DEAD.QUEUE)                                                  
+ TRIGINT(999999999)                                                      
+ MAXHANDS(256)                                                           
+ MAXUMSGS(10000)                                                         
+ EXPRYINT(3600)                                                          
+ AUTHOREV(DISABLED)                                                      
+INHIBTEV(DISABLED)              
+LOCALEV(DISABLED)               
+REMOTEEV(DISABLED)              
+STRSTPEV(DISABLED)              
+PERFMEV(DISABLED)               
+CONFIGEV(DISABLED)              
+CMDEV(DISABLED)                 
+CHLEV(DISABLED)                 
+SSLEV(DISABLED)                 
+BRIDGEEV(DISABLED)              
+CHADEXIT( )                     
+CLWLDATA( )                     
+CLWLEXIT( )                     
+CLWLLEN(100)                    
+CLWLMRUC(999999999)             
+CLWLUSEQ(LOCAL)                 
+REPOS( )                        
+REPOSNL( )                      
+QMID(BRS3.CAA7445A848E2E04)     
+DEFXMITQ(BRS3.XMIT.QUEUE)       
+SQQMNAME(USE)                   
+MARKINT(5000)                   
+MAXPROPL(NOLIMIT)            
+SSLRKEYC(0)                  
+SSLKEYR(MQBRS3RING)          
+SSLCRLNL( )                  
+SSLTASKS(10)                 
+SSLFIPS(NO)                  
+CERTLABL(ibmWebSphereMQBRS3) 
+CERTQSGL( )                  
+IGQ(DISABLED)                
+IGQAUT(DEF)                  
+IGQUSER( )                   
+IPADDRV(IPV4)                
+ACCTQ(ON)                    
+MONQ(OFF)                    
+MONCHL(OFF)                  
+MONACLS(QMGR)                
+ROUTEREC(MSG)                
+ACTIVREC(MSG)                
+PARENT( )                    
+TREELIFE(1800)               
+PSMODE(ENABLED)              
+PSCLUS(ENABLED)              
+PSNPMSG(DISCARD)            
+PSNPRES(NORMAL)             
+PSRTYCNT(5)                 
+PSSYNCPT(IFPER)             
+GROUPUR(DISABLED)           
+SCYCASE(UPPER)              
+CHIADAPS(8)                 
+CHIDISPS(5)                 
+MAXCHL(200)                 
+ACTCHL(200)                 
+TCPCHL(195)                 
+TCPKEEP(NO)                 
+TCPNAME(HASTCP03)           
+TCPSTACK(MULTIPLE)          
+OPORTMIN(0)                 
+OPORTMAX(0)                 
+LU62CHL(5)                  
+LUGROUP( )                  
+LUNAME(BRS3)                
+LU62ARM(00)                 
+DNSGROUP( )                 
+DNSWLM(NO)                  
+LSTRTMR(60)                                           
+RCVTIME(0)                                            
+RCVTTYPE(MULTIPLY)                                    
+RCVTMIN(0)                                            
+ADOPTCHK(ALL)                                         
+ADOPTMCA(NO)                                          
+TRAXTBL(2)                                            
+TRAXSTR(YES)                                          
+CHISERVP(20100000000000000000000000000000)            
+CFCONLOS(TERMINATE)                                   
+SPLCAP(DISABLED)                                      
+DEFCLXQ(SCTQ)                                         
+CUSTOM( )                                             
+REVDNS(ENABLED)                                       
+CONNAUTH( )                                           
+STATCHL(OFF)                                          
+STATACLS(QMGR)                                        
+ALTDATE(2018-06-05)                                   
+ALTTIME(17.35.06)                                     
+SQ9022I !BRS3 CSQMDRTS ' DIS QMGR' NORMAL COMPLETION 
+
+
+>>  Autenticação de canal CHLAUTH(DISABLED) 
+
+
+ALTER QMGR CHLAUTH(ENABLED)    
+
+DIS QMGR ALL                                                    
+CSQN205I   COUNT=       3, RETURN=00000000, REASON=00000000     
+CSQM409I !BRS3                                                  
+ QMNAME(BRS3)                                                   
+ DESCR(IBM Websphere MQSeries for Z/os - V8.0)                  
+ PLATFORM(MVS)                                                  
+ CPILEVEL(100)                                                  
+ CMDLEVEL(800)                                                  
+ VERSION(08000000)                                              
+ CCSID(500)                                                     
+ CHLAUTH(ENABLED)                                               
+ MAXPRTY(9)                                                     
+ MAXMSGL(104857600)                                             
+ SYNCPT(AVAILABLE)                                              
+ QSGNAME( )                                                     
+ COMMANDQ(SYSTEM.COMMAND.INPUT)                                 
+ DEADQ(BRS3.DEAD.QUEUE)                                         
+CHLAUTH(ENABLED)                  
+MAXPRTY(9)                        
+MAXMSGL(104857600)                
+SYNCPT(AVAILABLE)                 
+QSGNAME( )                        
+COMMANDQ(SYSTEM.COMMAND.INPUT)    
+DEADQ(BRS3.DEAD.QUEUE)            
+TRIGINT(999999999)                
+MAXHANDS(256)                     
+MAXUMSGS(10000)                   
+EXPRYINT(3600)                    
+AUTHOREV(DISABLED)                
+INHIBTEV(DISABLED)                
+LOCALEV(DISABLED)                 
+REMOTEEV(DISABLED)                
+STRSTPEV(DISABLED)                
+PERFMEV(DISABLED)                 
+CONFIGEV(DISABLED)                
+CMDEV(DISABLED)                   
+CHLEV(DISABLED)                   
+SSLEV(DISABLED)                   
+BRIDGEEV(DISABLED)                
+CHADEXIT( )                     
+CLWLDATA( )                     
+CLWLEXIT( )                     
+CLWLLEN(100)                    
+CLWLMRUC(999999999)             
+CLWLUSEQ(LOCAL)                 
+REPOS( )                        
+REPOSNL( )                      
+QMID(BRS3.CAA7445A848E2E04)     
+DEFXMITQ(BRS3.XMIT.QUEUE)       
+SQQMNAME(USE)                   
+MARKINT(5000)                   
+MAXPROPL(NOLIMIT)               
+SSLRKEYC(0)                     
+SSLKEYR(MQBRS3RING)             
+SSLCRLNL( )                     
+SSLTASKS(10)                    
+SSLFIPS(NO)                     
+CERTLABL(ibmWebSphereMQBRS3)    
+CERTQSGL( )                     
+IGQ(DISABLED)                   
+IGQAUT(DEF)                     
+IGQUSER( )               
+IPADDRV(IPV4)            
+ACCTQ(ON)                
+MONQ(OFF)                
+MONCHL(OFF)              
+MONACLS(QMGR)            
+ROUTEREC(MSG)            
+ACTIVREC(MSG)            
+PARENT( )                
+TREELIFE(1800)           
+PSMODE(ENABLED)          
+PSCLUS(ENABLED)          
+PSNPMSG(DISCARD)         
+PSNPRES(NORMAL)          
+PSRTYCNT(5)              
+PSSYNCPT(IFPER)          
+GROUPUR(DISABLED)        
+SCYCASE(UPPER)           
+CHIADAPS(8)              
+CHIDISPS(5)              
+MAXCHL(200)              
+ACTCHL(200)              
+TCPCHL(195)                                  
+TCPKEEP(NO)                                  
+TCPNAME(HASTCP03)                            
+TCPSTACK(MULTIPLE)                           
+OPORTMIN(0)                                  
+OPORTMAX(0)                                  
+LU62CHL(5)                                   
+LUGROUP( )                                   
+LUNAME(BRS3)                                 
+LU62ARM(00)                                  
+DNSGROUP( )                                  
+DNSWLM(NO)                                   
+LSTRTMR(60)                                  
+RCVTIME(0)                                   
+RCVTTYPE(MULTIPLY)                           
+RCVTMIN(0)                                   
+ADOPTCHK(ALL)                                
+ADOPTMCA(NO)                                 
+TRAXTBL(2)                                   
+TRAXSTR(YES)                                 
+CHISERVP(20100000000000000000000000000000)   
+CFCONLOS(TERMINATE)                          
+SPLCAP(DISABLED)                                     
+DEFCLXQ(SCTQ)                                        
+CUSTOM( )                                            
+REVDNS(ENABLED)                                      
+CONNAUTH( )                                          
+STATCHL(OFF)                                         
+STATACLS(QMGR)                                       
+ALTDATE(2018-06-08)                                  
+ALTTIME(14.18.38)                                    
+SQ9022I !BRS3 CSQMDRTS ' DIS QMGR' NORMAL COMPLETION 
+
+
+
+1ª tentativa:
+
+-iniciar o canal sdr no MQ BRS1 (start normal)
+- Canal rcv BRS3 iniciou mas não alterou o MCAuser id
+teste não funcionou   
+
+RESULTADO : MCA USER ID . . . . . . . . : DUMMY 
+ESPERADO SMQBRS3C     
+
+
+
+3- alterar a SSLKEYR(BRS1RING) do BRS1
+
+ALTER QMGR SSLKEYR(MQBRS1RING) 
+resultado ok
+
+
+2ª tentativa:
+
+-iniciar o canal sdr no MQ BRS1 (start normal) CSQ9023E !BRS1 CSQXCRPS ' START CHANNEL' ABNORMAL COMPLETION
+- Canal rcv BRS3 iniciou mas não alterou o MCAuser id
+teste não funcionou   
+
+RESULTADO : MCA USER ID . . . . . . . . : DUMMY 
+ESPERADO SMQBRS3C    
+
+              
+
+4- remover a regra:
+SET CHLAUTH(BRS1.TO.BRS3.TSTST)  +                                  
+TYPE(SSLPEERMAP)  +                                                 
+MCAUSER(SMQBRS3C)  +                                                
+SSLPEER('CN=QBP3.TO.SPPH, O=CAIXA ECONOMICA FEDERAL, C=BR')  +      
+USERSRC(MAP) ACTION(REMOVE)   
+
+
+5- incluir novas regras:
+                                      
+5.1- regra de bloqueio:
+SET CHLAUTH('BRS1.TO.BRS3.*')  +               
+TYPE(ADDRESSMAP) +                             
+ADDRESS('*')     +                             
+USERSRC(NOACCESS)  +                           
+ACTION(ADD)                                    
+
+5.2- Permissão
+SET CHLAUTH('BRS1.TO.BRS3.TSTST')  +      
+TYPE(SSLPEERMAP)  +                       
+MCAUSER(SMQBRS3C)  +                      
+SSLPEER('CN=*') +                         
+USERSRC(MAP) ACTION(ADD)                  
+
+               
+Display das regras:
+DIS CHLAUTH(*)                                                
+CSQN205I   COUNT=       4, RETURN=00000000, REASON=00000000   
+CSQM454I !BRS3                                                
+ CHLAUTH(BRS1.TO.BRS3.*)                                      
+ TYPE(ADDRESSMAP)                                             
+ ADDRESS(*)                                                   
+ USERSRC(NOACCESS)                                            
+CSQM454I !BRS3                                                
+ CHLAUTH(BRS1.TO.BRS3.TSTST)                                  
+ TYPE(SSLPEERMAP)                                             
+ MCAUSER(SMQBRS3C)                                            
+ SSLPEER(                                                     
+  CN=*                                                        
+  )                                                           
+ USERSRC(MAP)                                                 
+CSQ9022I !BRS3 CSQMDRTS ' DIS CHLAUTH' NORMAL COMPLETION  
+
+    
+6-"new copy" das regras:
+ REFRESH SECURITY TYPE(SSL) 
+
+
+3ª tentativa:
+
+-iniciar o canal sdr no MQ BRS1 (start anormal)
+- Canal rcv BRS3  não iniciou 
+teste não funcionou a regra de bloqueio prevaleceu   
+
+
+
+7- removida a regra "permissão" TYPE(SSLPEERMAP)
+SET CHLAUTH('BRS1.TO.BRS3.TSTST')  +         
+TYPE(SSLPEERMAP)  +                          
+MCAUSER(SMQBRS3C)  +                         
+SSLPEER('CN=*') +                            
+USERSRC(MAP) ACTION(REMOVE)                  
+
+
+8- incluída nova regra de "permissão" TYPE(ADDRESSMAP):
+SET CHLAUTH('BRS1.TO.BRS3.TSTST')  +  
+TYPE(ADDRESSMAP)  +                   
+MCAUSER(SMQBRS3C)  +                  
+ADDRESS('*') +                        
+USERSRC(MAP) ACTION(ADD)              
+
+4ª tentativa:
+
+-iniciar o canal sdr no MQ BRS1 (start anormal)
+- Canal rcv BRS3  não iniciou 
+teste não funcionou a regra de bloqueio prevaleceu   
+
+
+9- removida a regra "permissão" TYPE(ADDRESSMAP):
+SET CHLAUTH('BRS1.TO.BRS3.TSTST')  +  
+TYPE(ADDRESSMAP)  +                   
+MCAUSER(SMQBRS3C)  +                  
+ADDRESS('*') +                        
+USERSRC(MAP) ACTION(REMOVE)           
+
+
+10- incluída regra "permissão" TYPE(SSLPEERMAP)
+SET CHLAUTH('BRS1.TO.BRS3.TSTST')  +                                      
+TYPE(SSLPEERMAP)  +                                                       
+MCAUSER(SMQBRS3C)  +                                                      
+SSLPEER('CN="QBP3.TO.SPPH", OU="AC CORPORATIVA APLICACOES V4",         -  
+O="CAIXA ECONOMICA FEDERAL", C="BR"') +                                   
+USERSRC(MAP) ACTION(ADD)                                                  
+
+
+Display da regra:
+DIS CHLAUTH('BRS1.TO.BRS3.TSTST')                                                                      
+CSQN205I   COUNT=       3, RETURN=00000000, REASON=00000000                                            
+CSQM454I !BRS3                                                                                         
+ CHLAUTH(BRS1.TO.BRS3.TSTST)                                                                           
+ TYPE(SSLPEERMAP)                                                                                      
+ MCAUSER(SMQBRS3C)                                                                                     
+ SSLPEER(                                                                                              
+  CN="QBP3.TO.SPPH", OU="AC CORPORATIVA APLICACOES V4",         O="CAIXA ECONOMICA FEDERAL", C="BR"    
+  )                                                                                                    
+ USERSRC(MAP)                                                                                          
+CSQ9022I !BRS3 CSQMDRTS ' DIS CHLAUTH' NORMAL COMPLETION                                               
+
+
+5ª tentativa:
+
+-iniciar o canal sdr no MQ BRS1 (start anormal) CSQ9023E !BRS1 CSQXCRPS ' START CHANNEL' ABNORMAL COMPLETION
+- Canal rcv BRS3  não iniciou 
+teste não funcionou a regra de bloqueio prevaleceu
+
+
+
+
+11- Restaurar ambiente original (remoção das regras);
+SET CHLAUTH('BRS1.TO.BRS3.TSTST')  +                                      
+TYPE(SSLPEERMAP)  +                                                       
+MCAUSER(SMQBRS3C)  +                                                      
+SSLPEER('CN="QBP3.TO.SPPH", OU="AC CORPORATIVA APLICACOES V4",         -  
+O="CAIXA ECONOMICA FEDERAL", C="BR"') +                                   
+USERSRC(MAP) ACTION(REMOVE)                                               
+
+
+SET CHLAUTH('BRS1.TO.BRS3.*')  +          
+TYPE(ADDRESSMAP) +                        
+ADDRESS('*')     +                        
+USERSRC(NOACCESS)  +                      
+ACTION(REMOVE)                            
+
+
+............... final 2º teste.....................................................
+
+
+
+ CSQX658E !BRS1 CSQXRCTL SSL certificate has expired,          
+ channel BRS1.TO.BRS3.TSTST                                    
+ connection 10.192.48.161                                      
+ CSQ9023E !BRS1 CSQXCRPS ' START CHANNEL' ABNORMAL COMPLETION  
+
+SSL CIPHER SPECIFICATION  . : TLS_RSA_WITH_AES_256_CBC_SHA256
+
+
+brs1mstr
+10.21.17 S0295968  CSQM073I !BRS1 CSQMDURR Loading of durable subscribers started          
+10.21.17 S0295968  CSQM074I !BRS1 CSQMDURR Loading of durable subscribers finished         
+10.21.17 S0295968  CSQM075I !BRS1 CSQMDURR Consolidation of durable subscribers started    
+10.21.17 S0295968  CSQM076I !BRS1 CSQMDURR Consolidation of durable subscribers finished   
+
+
+BRS1CHIN
+11.02.15 S0295969  +CSQX500I !BRS1 CSQXRCTL Channel BRS1.TO.BRS3.TSTST started          
+11.02.15 S0295969  +CSQX658E !BRS1 CSQXRCTL SSL certificate has expired,  886           
+   886              channel BRS1.TO.BRS3.TSTST                                          
+   886              connection 10.192.48.161                                            
+11.02.15 S0295969  +CSQX599E !BRS1 CSQXRCTL Channel BRS1.TO.BRS3.TSTST ended abnormally 
+11.03.17 S0295969  +CSQX500I !BRS1 CSQXRCTL Channel BRS1.TO.BRS3.TSTST started          
+11.03.17 S0295969  +CSQX658E !BRS1 CSQXRCTL SSL certificate has expired,  919           
+   919              channel BRS1.TO.BRS3.TSTST                                          
+   919              connection 10.192.48.161                                            
+11.03.17 S0295969  +CSQX599E !BRS1 CSQXRCTL Channel BRS1.TO.BRS3.TSTST ended abnormally 
+
+brs3chin
+11.05.21 S0295971  +CSQX658E !BRS3 CSQXRESP SSL certificate has expired,  928            
+   928              channel BRS1.TO.BRS3.TSTST                                           
+   928              connection 10.192.48.161                                             
+11.06.21 S0295971  +CSQX658E !BRS3 CSQXRESP SSL certificate has expired,  941            
+   941              channel BRS1.TO.BRS3.TSTST                                           
+   941              connection 10.192.48.161                                             
+
+
+
+
+1
+down vote
+favorite
+1
+Could you please explain why there would be messages pending in the queue SYSTEM.CHLAUTH.DATA.QUEUE. 
+There are 3 messages in the queue now. what if these messages are deleted. Will there be any issues if we delete these messages. 
+Are those information messages about the channel authentication records? Please suggest a resolution.
+
+ibm-mq
+shareimprove this question
+asked Feb 5 at 13:37
+
+Rinak
+678
+@Achilles Would it be a problem if the messages stay in the queue. If possible can you please provide an evidence ? Rinak Feb 5 at 15:02
+
+@JoshMc We have monitoring in place for all the queues including the system queues, so we get notified when there are messages pending in any of the 
+local queues/system queues. I haven't put any messages in the queue. But concerned why there are messages in this queue though we have 
+Channel Authentication disabled on queue manager level ' CHLAUTH(DISABLED) ' ? Rinak Feb 5 at 15:20 
+It would be recommended to only monitor specific SYSTEM queues that provide value such as SYSTEM.CLUSTER.TRANSMIT.QUEUE 
+if you are using clustering, or SYSTEM.MANAGED.* queues if you are using Managed Pub/Sub. 
+
+? JoshMc Feb 5 at 15:28
+add a comment
+1 Answer
+active oldest votes
+up vote
+2
+down vote
+accepted
+
+The IBM MQ v7.5 Knowledge Center page "Troubleshooting channel authentication records addresses the topic of what the SYSTEM.CHLAUTH.DATA.QUEUE 
+is used for.
+
+Behaviour of SET CHLAUTH command over queue manager restart
+
+If the SYSTEM.CHLAUTH.DATA.QUEUE, has been deleted or altered in a way that it is no longer accessible i.e. PUT(DISABLED), 
+the SET CHLAUTH command will only be partially successful. In this instance, SET CHLAUTH will update the in-memory cache, but will fail when hardening.
+
+This means that although the rule put in place by the SET CHLAUTH command may be operable initially, the effect of the command will not persist over a 
+queue manager restart. The user should investigate, ensuring the queue is accessible and then reissue the command (using ACTION(REPLACE) ) before 
+cycling the queue manager.
+
+If the SYSTEM.CHLAUTH.DATA.QUEUE remains inaccessible at queue manager startup, the cache of saved rules cannot be loaded and all channels will be 
+blocked until the queue and rules become accessible.
+
+In Summary, each time you add, change, or delete a CHLAUTH rule, the queue manager updates does two things:
+
+It updates the in-memory cache (running configuration)
+It hardens the configuration by adding, updating, or removing messages in the SYSTEM.CHLAUTH.DATA.QUEUE. This is so that the running configuration 
+will be available when the queue manager is restarted.
+When the queue manager is restarted, it reads the messages from the SYSTEM.CHLAUTH.DATA.QUEUE to initially populate the in-memory cache 
+(running configuration) with previously existing rules.
+
+If you were to delete the messages from this queue and restart your queue manager you would find there would be no CHLAUTH records set.
+
+A similar queue exists called SYSTEM.AUTH.DATA.QUEUE which holds the queue manager's OAM (authorization) rules. One difference between the 
+CHLAUTH queue and this queue is that the AUTH queue is opened by an internal MQ process with MQOO_INPUT_EXCLUSIVE which means you 
+can not open the queue at all.
+
+Note that CHLAUTH was added at MQ v7.1. If a queue manager is created new under 7.1 or higher CHLAUTH will be ENABLED by default. 
+If a queue manager is upgraded to MQ v7.1 or higher from a version prior to 7.1 then CHLAUTH will be DISABLED by default. 
+No matter if it a new or upgraded queue manager, or if CHLAUTH is ENABLED or DISABLED, there are three default rules that will be 
+in place (listed below).
+
+BLOCKUSER rule to deny any MQADMIN user on all SRVCONN channels.
+ADDRESSMAP rule to deny usage of any channel that starts with SYSTEM.* from any IP address.
+ADDRESSMAP rule to allow connections to SYSTEM.ADMIN.SVRCONN from any IP address. Rule #1's restriction still applies.
+The three default rules are likely directly related to the three messages you observed in the queue. In general leaving 
+CHLAUTH ENABLED with the default rules is a good thing. I normally get rid of #3 because I do not have a channel with this name. 
+You noted that CHLAUTH is disabled, if you have no intention of using this feature you could use saveqmgr or dmpmqcfg to dump 
+MQSC commands to recreate these three default rules and then delete those three rules, this will remove the three messages on the 
+SYSTEM.CHLAUTH.DATA.QUEUE.
+
+If in the future you come to your senses and turn CHLAUTH back on, you can restore the rules you deleted with the backup created.
+
+https://www.ibm.com/support/knowledgecenter/en/SSFKSJ_9.0.0/com.ibm.mq.pro.doc/q004080_.htm
+
+
+
+WARN(YES)
+
+ATCH (RUNCHECK)
+
+
+ISPLAY CHLAUTH (CHAN1) MATCH (RUNCHECK) CLNTUSER ('mcregge') AD
+-
+DRESS ('192.168.1.138')
+
+
+DISPLAY  CHLAUTH(BRS1.TO.BRS3.TSTST)                         + 
+MATCH (RUNCHECK)                                             +  
+TYPE(SSLPEERMAP)                                             +   
+SSLPEER('CN="*"') +                                              
+USERSRC(MAP) MCAUSER('SMQBRS3C') ACTION(REPLACE)                 
+
+
+DISPLAY  CHLAUTH(BRS1.TO.BRS3.TSTST)                         + 
+MATCH (RUNCHECK)                                             + 
+SSLPEER('CN="*"')                                            + 
+CLNTUSER('SMQBRS3C')            
+
+DISPLAY CHLAUTH MATCH (RUNCHECK) SSLPEER
+
+
+SET CHLAUTH('BRS1.TO.BRS3.TSTST') TYPE(ADDRESSMAP) ADDRESS('*')  
+USERSRC(NOACCESS) DESCR(''block all'') WARN(NO) ACTION(ADD)  
+
+SET CHLAUTH('BRS1.TO.BRS3.TSTST') TYPE(SSLPEERMAP)  
+SSLPEER('CN=MCREGGE,O=IBM,C=US') USERSRC(CHANNEL) ACTION(ADD) 
+
+SET CHLAUTH('BRS1.TO.BRS3.TSTST') TYPE(SSLPEERMAP)  
+SSLPEER('CN="*"') USERSRC(CHANNEL) ACTION(ADD)
+
+The client userid connecting on the channel will be used for the MQ OAM authority of 
+MQ objects; thus the userid must have appropriate MQ authorities.  You could map to 
+a different MQ userid if you wanted to, by using 
+USERSRC(MAP) MCAUSER('mquser1') instead of USERSRC(CHANNEL)
+
+DISPLAY  CHLAUTH(BRS1.TO.BRS3.TSTST)                         + 
+MATCH (RUNCHECK)                                             +  
+TYPE(SSLPEERMAP)                                             +   
+SSLPEER('CN="*"') +                                              
+USERSRC(MAP) MCAUSER('SMQBRS3C') ACTION(REPLACE)           
+
+SSLPEER(                                                                  
+  CN=QBP3.TO.SPPH, O=CAIXA ECONOMICA FEDERAL, C=BR                         
+  )                                                                        
+ USERSRC(MAP)         
+
+
+SET CHLAUTH('BRS1.TO.BRS3.TSTST') TYPE(ADDRESSMAP) ADDRESS('*') + 
+USERSRC(NOACCESS) DESCR('BLOCK ALL') WARN(NO) ACTION(ADD)         
+
+SET CHLAUTH('BRS1.TO.BRS3.TSTST') TYPE(SSLPEERMAP)  + 
+SSLPEER('CN="*"') USERSRC(CHANNEL) ACTION(ADD)
+
+
+10.30.41 S0295971  +CSQX777E !BRS3 CSQXRESP Channel BRS1.TO.BRS3.TSTST from 10.192.48.161  719   
+   719              has been blocked due to USERSRC(NOACCESS), Detail: QMNAME(BRS1)              
+10.30.41 S0295971  +CSQX599E !BRS3 CSQXRESP Channel BRS1.TO.BRS3.TSTST ended abnormally  720     
+   720              connection 10.192.48.161                                                     
+
+
+SET CHLAUTH('BRS1.TO.BRS3.TSTST') TYPE(SSLPEERMAP)  + 
+SSLPEER('CN="*"') USERSRC(MAP) MCAUSER('SMQBRS3C') ACTION(REPLACE)  
+
+SET CHLAUTH('BRS1.TO.BRS3.TSTST') TYPE(SSLPEERMAP)  + 
+SSLPEER('*') USERSRC(MAP) MCAUSER('SMQBRS1C') ACTION(REPLACE)  
+
+CHLAUTH(BRS1.TO.BRS3.TSTST)
+TYPE(SSLPEERMAP)           
+ADDRESS( )                 
+     
+CHCKCLNT(ASQMGR)           
+CUSTOM( )                  
+DESCR( )                   
+MCAUSER(SMQBRS3C)          
+SSLCERTI(                  
+ )                         
+SSLPEER(                   
+ CN="*"                    
+ )                         
+USERSRC(MAP)               
+WARN(NO)                   
+
+
+
+SET CHLAUTH('TO.MYSVR1') TYPE(ADDRESSMAP) ADDRESS('*') USERSRC(NOACCESS) 
+DESCR('Back-stop rule')
+# Then allow access from queue manager MYSVR2 and from a particular ipaddress:
+SET CHLAUTH('TO.MYSVR1') TYPE(QMGRMAP) QMNAME('MYSVR2') USERSRC(MAP) 
+MCAUSER('mqapp') ADDRESS('192.168.1.134') ACTION(ADD) 
+
+
+
+Channel profile	Type	Peer name	Client user ID	Remote queue manager	Address	User source	MCA user ID	User list	Address list	Warning	Client connections	Peer issuer name	Description	Custom	Alteration date	Alteration time
+BRS1.TO.BRS3.TSTST	Address Map				*	No Access				No			BACK-STOP RULE		Jun 10, 2018	11:18:40 AM
+BRS1.TO.BRS3.TSTST	Queue Manager Map			BRS1	10.192.48.161	Map	SMQBRS3C								Jun 10, 2018	11:47:23 AM
+
+
+
+1- defini a regra de bloqueio:
+SET CHLAUTH('BRS1.TO.BRS3.TSTST') TYPE(ADDRESSMAP)  +   
+ADDRESS('*') USERSRC(NOACCESS) DESCR('BACK-STOP RULE')  
+
+2-defini  a "permissão":
+SET CHLAUTH('BRS1.TO.BRS3.TSTST') TYPE(QMGRMAP)  +  
+QMNAME('BRS1') USERSRC(MAP) MCAUSER('SMQBRS3C')  +  
+ADDRESS('10.192.48.161')         
+
+3- iniciei o canal  sender ( receiver definido com  MCA USER ID . . . . . . . . : DUMMY    )
+
+4- o canal  rcv foi iniciado com o  MCA USER ID . . . . . . . . : SMQBRS3C                                        
+
+ CHANNEL NAME  . . . . . . . : BRS1.TO.BRS3.TSTST                              
+ TYPE AND DISPOSITION  . . . : RECEIVER     PRIVATE BRS3                  
+
+(cópia da tela)     
+                                                                               
+ MCA USER ID . . . . . . . . : SMQBRS3C                                        
+ NONPERSISTENT MESSAGES  . . : F  F=FAST, N=NORMAL                             
+ MAXIMUM MESSAGE LENGTH  . . : 4194304       0 - 104857600                     
+ BATCH SIZE  . . . . . . . . : 50            1 - 9999                          
+                                                                               
+ HEARTBEAT INTERVAL  . . . . : 300           0 - 999999 SECONDS                
+ KEEP ALIVE INTERVAL . . . . : 360           0 - 99999 SECONDS                 
+                                                                               
+ COMPRESSION                                                                   
+    DEFAULT - HEADER . . . . : N  MESSAGE . . : N  N=NONE, S=SYSTEM, R=RLE,    
+    LAST USED - HEADER . . . : N  MESSAGE . . : N  F=ZLIBFAST, H=ZLIBHIGH      
+
+
+https://www.ibm.com/developerworks/community/blogs/messaging/entry/The_interaction_of_CHLAUTH_and_CONNAUTH_in_IBM_MQ?lang=en
